@@ -11,7 +11,7 @@ class SolverState:
     board: Board
     # rack: ???
     # original_rack: ???
-    # cross_check_results: ???
+    cross_check_results: dict[CellCoord, set[Letter]] | None
     direction: Direction | None
     plays: list[Any]  # This should be better defined: List[Tuple[Position, str, Set[CellCoord]]] or List[Play] as defined in main.py???
 

@@ -19,7 +19,7 @@ from result import Err, Ok
 
 from board import Board, CellCoord, Direction, Letter, Position
 from solver import SolverState
-from trie import nwl_2020
+from trie import nwl_2020, Trie
 
 Color = tuple[int, int, int]
 
@@ -188,7 +188,7 @@ def deltas(dir) -> tuple[int, int]:
     col_delta = 0 if dir == Direction.DOWN else 1
     return (row_delta, col_delta)
 
-def extension_tiles(ext, board, dir, row, col, blank_poss):
+def extension_tiles(ext, board: Board, dir: Direction, row: int, col: int, blank_poss):
     delta_factor         = -1 if ext == Extension.PREFIX else 1
     row_delta, col_delta = tuple(delta_factor * i for i in list(deltas(dir)))
     next_row, next_col, tiles, score = row, col, "", 0
@@ -302,6 +302,19 @@ class MyGame(arcade.Window):
     grid_backup: Board
     last_grid: Board
     cursor: Cursor
+    letters_typed: dict[CellCoord, Letter]
+    player: Player
+    computer: Player
+    phase: Phase
+    pause_for_analysis_rank: int | None
+    player_plays: list[Play]
+    player_words_found: set[int]
+    player_scores_found: set[int]
+    hook_letters: dict[CellCoord, set[Letter]]
+    display_hook_letters: Hooks
+    DEFINITIONS: dict[str, str]
+    KNOW: set[str]
+    trie: Trie
 
     def __init__(self, width, height, title):
         """Set up the application"""
@@ -788,6 +801,7 @@ class MyGame(arcade.Window):
         if len(self.letters_typed):
             start_row, start_col = next(iter(self.letters_typed))
             dir     = self.cursor.dir
+            assert dir is not None
             pos     = Position(dir, start_row, start_col) # start row is super hacky
             letters = "".join(self.letters_typed.values())
             return word_score(self.grid, self.trie, letters, pos, True, self.temp_blank_letters | self.blank_letters)
