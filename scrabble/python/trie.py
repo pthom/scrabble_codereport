@@ -1,12 +1,14 @@
 # Initial code taken from https://github.com/boringcactus/Appel-Jacobson-scrabble/blob/canon/letter_tree.py
 
 class TrieNode:
-    def __init__(self, is_word):
+    is_word: bool
+    children: dict[str, "TrieNode"]
+    def __init__(self, is_word: bool) -> None:
         self.is_word = is_word
         self.children = dict()
 
 class Trie:
-    def __init__(self, words):
+    def __init__(self, words) -> None:
         self.root = TrieNode(False)
         for word in words:
             current_node = self.root
@@ -16,7 +18,7 @@ class Trie:
                 current_node = current_node.children[letter]
             current_node.is_word = True
 
-    def lookup(self, word):
+    def lookup(self, word) -> TrieNode | None:
         current_node = self.root
         for letter in word:
             if letter not in current_node.children.keys():
@@ -24,7 +26,7 @@ class Trie:
             current_node = current_node.children[letter]
         return current_node
 
-    def is_word(self, word):
+    def is_word(self, word) -> bool:
         word_node = self.lookup(word)
         if word_node is None:
             return False

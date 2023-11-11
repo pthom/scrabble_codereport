@@ -3,6 +3,7 @@ HookStar Scrabble Trainer
 
 Started from https://arcade.academy/examples/array_backed_grid.html#array-backed-grid
 """
+from __future__ import annotations
 
 import os
 import random
@@ -138,12 +139,12 @@ class Cursor:
     x: int
     y: int
     dir: Direction | None
-    def __init__(self):
+    def __init__(self) -> None:
         self.dir = None
         self.x   = 7
         self.y   = 7
 
-    def rotate_dir(self):
+    def rotate_dir(self) -> None:
         if   self.dir is None:             self.dir = Direction.ACROSS
         elif self.dir == Direction.ACROSS: self.dir = Direction.DOWN
         else:                              self.dir = None
@@ -151,9 +152,9 @@ class Cursor:
 class Player:
     tiles:          list[Letter]
     score:          int
-    #word_ranks:    List[???]
+    word_ranks:     list[int]
     last_word_score: int
-    def __init__(self, tiles):
+    def __init__(self, tiles) -> None:
         self.tiles           = tiles
         self.score           = 0
         self.word_ranks      = []
@@ -188,7 +189,7 @@ def deltas(dir) -> tuple[int, int]:
     col_delta = 0 if dir == Direction.DOWN else 1
     return (row_delta, col_delta)
 
-def extension_tiles(ext, board: Board, dir: Direction, row: int, col: int, blank_poss):
+def extension_tiles(ext, board: Board, dir: Direction, row: int, col: int, blank_poss) -> tuple[str, int]:
     delta_factor         = -1 if ext == Extension.PREFIX else 1
     row_delta, col_delta = tuple(delta_factor * i for i in list(deltas(dir)))
     next_row, next_col, tiles, score = row, col, "", 0
@@ -204,13 +205,13 @@ def extension_tiles(ext, board: Board, dir: Direction, row: int, col: int, blank
             break
     return (tiles[::delta_factor], score)
 
-def prefix_tiles(board, dir, row, col, blank_poss):
+def prefix_tiles(board: Board, dir: Direction, row: int, col: int, blank_poss) -> tuple[str, int]:
     return extension_tiles(Extension.PREFIX, board, dir, row, col, blank_poss)
 
-def suffix_tiles(board, dir, row, col, blank_poss):
+def suffix_tiles(board: Board, dir: Direction, row: int, col: int, blank_poss) -> tuple[str, int]:
     return extension_tiles(Extension.SUFFIX, board, dir, row, col, blank_poss)
 
-def word_score(board, dictionary, letters, pos, first_call, blank_poss):
+def word_score(board: Board, dictionary, letters, pos, first_call, blank_poss) -> Ok[Play] | Err[str]:
     dir, row, col = pos.dir, 14 - pos.row, pos.col
     if board.is_filled((row, col)):
         return Err("cannot start word on existing tile")
@@ -302,7 +303,6 @@ class MyGame(arcade.Window):
     grid_backup: Board
     last_grid: Board
     cursor: Cursor
-    letters_typed: dict[CellCoord, Letter]
     player: Player
     computer: Player
     phase: Phase
@@ -315,8 +315,15 @@ class MyGame(arcade.Window):
     DEFINITIONS: dict[str, str]
     KNOW: set[str]
     trie: Trie
+    letters_typed: dict[CellCoord, Letter]
+    letters_to_highlight: set[CellCoord]
+    letters_bingoed: set[CellCoord]
+    temp_blank_letters: set[CellCoord]
+    blank_letters: set[CellCoord]
+    just_bingoed: bool
+    definition: str
 
-    def __init__(self, width, height, title):
+    def __init__(self, width, height, title) -> None:
         """Set up the application"""
 
         super().__init__(width, height, title)
@@ -371,14 +378,14 @@ class MyGame(arcade.Window):
         self.just_bingoed         = False
         self.definition           = ""
 
-    def draw_letter(self, letter, x, y, color, pos):
+    def draw_letter(self, letter, x, y, color, pos) -> None:
         arcade.draw_rectangle_filled(x, y, WIDTH, HEIGHT, color)
         if not self.just_bingoed and pos in self.letters_bingoed:
             arcade.draw_rectangle_outline(x, y, WIDTH-4, HEIGHT-4, arcade.color.DARK_PASTEL_GREEN, 5)
         arcade.draw_text(letter, x-HORIZ_TEXT_OFFSET, y-VERT_TEXT_OFFSET, arcade.color.WHITE, FONT_SIZE, bold=True, font_name=FONT)
         # if letter.isupper():
 
-    def on_draw(self):
+    def on_draw(self) -> None:
         """Render the screen"""
 
         arcade.start_render()
@@ -576,7 +583,7 @@ class MyGame(arcade.Window):
             self.player_plays = self.generate_all_plays(self.player.tiles)
             log("Done generating plays", LogType.OK)
 
-    def recursive_definition(self, word, num):
+    def recursive_definition(self, word: str, num: int) -> str:
         definition = self.DEFINITIONS[word.upper()]
         if definition[0] not in ["<", "{"]:
             return definition
@@ -586,7 +593,7 @@ class MyGame(arcade.Window):
             return definition
         return f"{definition} || {self.recursive_definition(redirect_word, num + 1)}"
 
-    def play_word(self, play, tiles):
+    def play_word(self, play, tiles: list[Letter] | None) -> list[Letter]:
         # TODO fix the 14 - row
         row, col             = 14 - play.pos.row, play.pos.col
         row_delta, col_delta = deltas(play.pos.dir)
@@ -597,7 +604,7 @@ class MyGame(arcade.Window):
             if self.grid.is_empty((row, col)):
                 self.letters_to_highlight.add((14 - row, col))
                 self.grid.set_tile((row, col), letter)
-                if remaining_tiles:
+                if remaining_tiles is not None:
                     if letter in remaining_tiles:
                         remaining_tiles.remove(letter)
                     elif " " in remaining_tiles:
@@ -606,7 +613,7 @@ class MyGame(arcade.Window):
             row += row_delta
 
         self.definition = self.recursive_definition(word, 1)
-        return remaining_tiles
+        return remaining_tiles if remaining_tiles is not None else []
 
     def on_mouse_press(self, x, y, button, modifiers):
         """Called when the user presses a mouse button"""
@@ -794,10 +801,10 @@ class MyGame(arcade.Window):
                     self.letters_typed.clear()
                     self.hook_letters.clear()
 
-    def is_playable(self):
+    def is_playable(self) -> bool:
         return self.is_playable_and_score_and_word().is_ok()
 
-    def is_playable_and_score_and_word(self):
+    def is_playable_and_score_and_word(self) -> Ok[Play] | Err[str]:
         if len(self.letters_typed):
             start_row, start_col = next(iter(self.letters_typed))
             dir     = self.cursor.dir
@@ -807,7 +814,7 @@ class MyGame(arcade.Window):
             return word_score(self.grid, self.trie, letters, pos, True, self.temp_blank_letters | self.blank_letters)
         return Err("no letters typed")
 
-    def generate_all_plays(self, tiles):
+    def generate_all_plays(self, tiles) -> list[Play]:
         plays = SolverState(self.trie, self.grid, tiles).find_all_options()
         valid_plays = []
         for pos, letters, blanks in plays:
@@ -816,9 +823,9 @@ class MyGame(arcade.Window):
                 valid_plays.append(score.unwrap())
         return sorted(valid_plays)
 
-def main():
+def main() -> None:
     MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    arcade.run()
+    arcade.run()  # type: ignore
 
 if __name__ == "__main__":
     main()

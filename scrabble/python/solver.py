@@ -165,7 +165,7 @@ class SolverState:
                         True
                     )
 
-    def find_all_options(self):
+    def find_all_options(self) -> list[Any]:
         for direction in Direction:
             self.direction = direction
             anchors = self.find_anchors()
