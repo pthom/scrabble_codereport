@@ -199,7 +199,7 @@ def extension_tiles(ext, board, dir, row, col, blank_poss):
         if board.is_filled(pos):
             tiles += board.tile(pos)
             if (14 - next_row, next_col) not in blank_poss:
-                score += TILE_SCORE.get(board.tile(pos))
+                score += TILE_SCORE[board.tile(pos)]
         else:
             break
     return (tiles[::delta_factor], score)
@@ -233,7 +233,7 @@ def word_score(board, dictionary, letters, pos, first_call, blank_poss):
         while board.is_filled((row, col)):
             word_played = word_played + board.tile((row, col))
             if (14 - row, col) not in blank_poss:
-                score  += TILE_SCORE.get(board.tile((row, col)))
+                score  += TILE_SCORE[board.tile((row, col))]
             row        += row_delta
             col        += col_delta
             crosses     = True
@@ -241,11 +241,11 @@ def word_score(board, dictionary, letters, pos, first_call, blank_poss):
         word_played    += letter
         word_mult      *= word_multiplier(row, col)
         if (14 - row, col) not in blank_poss:
-            score += TILE_SCORE.get(letter) * letter_multiplier(row, col)
+            score += TILE_SCORE[letter] * letter_multiplier(row, col)
         else:
             blanks.add((14 - row, col))
         if len(letters) == 1:
-            one_letter_score = TILE_SCORE.get(letter) * letter_multiplier(row, col)
+            one_letter_score = TILE_SCORE[letter] * letter_multiplier(row, col)
 
         # find perpendicular words that need to be scored
         if dir == Direction.ACROSS:
@@ -388,7 +388,7 @@ class MyGame(arcade.Window):
                 y = (MARGIN + HEIGHT) * row    + MARGIN + HEIGHT // 2 + BOTTOM_MARGIN
 
                 if   self.grid.is_filled(bpos): letter = self.grid.tile(bpos)
-                elif pos in self.letters_typed: letter = self.letters_typed.get(pos)
+                elif pos in self.letters_typed: letter = self.letters_typed[pos]
                 else:                           letter = " "
 
                 blank = pos in self.temp_blank_letters | self.blank_letters
@@ -512,10 +512,10 @@ class MyGame(arcade.Window):
             self.phase = Phase.FINAL_SCORE
             print(self.phase)
             if len(self.computer.tiles):
-                extra_points = 2 * sum(TILE_SCORE.get(c) for c in self.computer.tiles)
+                extra_points = 2 * sum(TILE_SCORE[c] for c in self.computer.tiles)
                 self.player.score += extra_points
             else:
-                extra_points = 2 * sum(TILE_SCORE.get(c) for c in self.player.tiles)
+                extra_points = 2 * sum(TILE_SCORE[c] for c in self.player.tiles)
                 self.computer.score += extra_points
             print(f"{extra_points=}")
             print("GAME OVER")
