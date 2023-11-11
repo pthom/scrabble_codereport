@@ -20,7 +20,7 @@ from result import Err, Ok
 
 from board import Board, CellCoord, Direction, Letter, Position
 from solver import SolverState
-from trie import nwl_2020, Trie
+from trie import Trie, nwl_2020
 
 Color = tuple[int, int, int]
 

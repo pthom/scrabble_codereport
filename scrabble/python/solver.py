@@ -1,19 +1,20 @@
 # Inital code taken from https://github.com/boringcactus/Appel-Jacobson-scrabble/blob/canon/board.py
 
 from collections import defaultdict
-from typing import Any
 
 from board import Board, CellCoord, Direction, Letter, Position
 from trie import Trie, TrieNode
 
+Play_MayBeRefactor = tuple[Position, str, set[CellCoord]]  # Should this be using Play from main.py?
+
 
 class SolverState:
     board: Board
-    # rack: ???
-    # original_rack: ???
+    rack: list[Letter]
+    original_rack: list[Letter]
     cross_check_results: dict[CellCoord, set[Letter]] | None
     direction: Direction | None
-    plays: list[Any]  # This should be better defined: List[Tuple[Position, str, Set[CellCoord]]] or List[Play] as defined in main.py???
+    plays: list[Play_MayBeRefactor]
 
     def __init__(self, dictionary: Trie, board: Board, rack): # What is the type of rack?
         self.dictionary = dictionary
@@ -165,7 +166,7 @@ class SolverState:
                         True
                     )
 
-    def find_all_options(self) -> list[Any]:
+    def find_all_options(self) -> list[Play_MayBeRefactor]:
         for direction in Direction:
             self.direction = direction
             anchors = self.find_anchors()
