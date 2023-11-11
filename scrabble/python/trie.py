@@ -8,7 +8,7 @@ class TrieNode:
         self.children = dict()
 
 class Trie:
-    def __init__(self, words) -> None:
+    def __init__(self, words: list[str]) -> None:
         self.root = TrieNode(False)
         for word in words:
             current_node = self.root
@@ -18,7 +18,7 @@ class Trie:
                 current_node = current_node.children[letter]
             current_node.is_word = True
 
-    def lookup(self, word) -> TrieNode | None:
+    def lookup(self, word: str) -> TrieNode | None:
         current_node = self.root
         for letter in word:
             if letter not in current_node.children.keys():
@@ -26,7 +26,7 @@ class Trie:
             current_node = current_node.children[letter]
         return current_node
 
-    def is_word(self, word) -> bool:
+    def is_word(self, word: str) -> bool:
         word_node = self.lookup(word)
         if word_node is None:
             return False

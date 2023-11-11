@@ -104,7 +104,7 @@ class LogType(Enum):
 
 DEBUG = True
 
-def log(msg: str, type: LogType):
+def log(msg: str, type: LogType) -> None:
     if DEBUG:
         if type == LogType.FAIL: color = Fore.RED
         if type == LogType.INFO: color = Fore.YELLOW
@@ -154,7 +154,7 @@ class Player:
     score:          int
     word_ranks:     list[int]
     last_word_score: int
-    def __init__(self, tiles) -> None:
+    def __init__(self, tiles: list[Letter]) -> None:
         self.tiles           = tiles
         self.score           = 0
         self.word_ranks      = []
@@ -162,7 +162,7 @@ class Player:
 
 ## Free functions
 
-def word_wrap_split(text: str, line_length: int):
+def word_wrap_split(text: str, line_length: int) -> list[str]:
     wrapper = textwrap.TextWrapper(width=line_length)
     return wrapper.wrap(text)
 
@@ -184,12 +184,12 @@ def tile_color(pos: CellCoord) -> Color:
     if BOARD[row][col] == Tl.TW: return COLOR_TRIPLE_WORD
     return COLOR_NORMAL
 
-def deltas(dir) -> tuple[int, int]:
+def deltas(dir: Direction) -> tuple[int, int]:
     row_delta = 1 if dir == Direction.DOWN else 0
     col_delta = 0 if dir == Direction.DOWN else 1
     return (row_delta, col_delta)
 
-def extension_tiles(ext, board: Board, dir: Direction, row: int, col: int, blank_poss) -> tuple[str, int]:
+def extension_tiles(ext: Extension, board: Board, dir: Direction, row: int, col: int, blank_poss: set[CellCoord]) -> tuple[str, int]:
     delta_factor         = -1 if ext == Extension.PREFIX else 1
     row_delta, col_delta = tuple(delta_factor * i for i in list(deltas(dir)))
     next_row, next_col, tiles, score = row, col, "", 0
@@ -205,13 +205,13 @@ def extension_tiles(ext, board: Board, dir: Direction, row: int, col: int, blank
             break
     return (tiles[::delta_factor], score)
 
-def prefix_tiles(board: Board, dir: Direction, row: int, col: int, blank_poss) -> tuple[str, int]:
+def prefix_tiles(board: Board, dir: Direction, row: int, col: int, blank_poss: set[CellCoord]) -> tuple[str, int]:
     return extension_tiles(Extension.PREFIX, board, dir, row, col, blank_poss)
 
-def suffix_tiles(board: Board, dir: Direction, row: int, col: int, blank_poss) -> tuple[str, int]:
+def suffix_tiles(board: Board, dir: Direction, row: int, col: int, blank_poss: set[CellCoord]) -> tuple[str, int]:
     return extension_tiles(Extension.SUFFIX, board, dir, row, col, blank_poss)
 
-def word_score(board: Board, dictionary, letters, pos, first_call, blank_poss) -> Ok[Play] | Err[str]:
+def word_score(board: Board, dictionary: Trie, letters: str, pos: Position, first_call: bool, blank_poss: set[CellCoord]) -> Ok[Play] | Err[str]:
     dir, row, col = pos.dir, 14 - pos.row, pos.col
     if board.is_filled((row, col)):
         return Err("cannot start word on existing tile")
@@ -323,7 +323,7 @@ class MyGame(arcade.Window):
     just_bingoed: bool
     definition: str
 
-    def __init__(self, width, height, title) -> None:
+    def __init__(self, width: int, height: int, title: str) -> None:
         """Set up the application"""
 
         super().__init__(width, height, title)
@@ -378,7 +378,7 @@ class MyGame(arcade.Window):
         self.just_bingoed         = False
         self.definition           = ""
 
-    def draw_letter(self, letter, x, y, color, pos) -> None:
+    def draw_letter(self, letter: Letter, x: int, y: int, color: Color, pos: CellCoord | None) -> None:
         arcade.draw_rectangle_filled(x, y, WIDTH, HEIGHT, color)
         if not self.just_bingoed and pos in self.letters_bingoed:
             arcade.draw_rectangle_outline(x, y, WIDTH-4, HEIGHT-4, arcade.color.DARK_PASTEL_GREEN, 5)
@@ -593,7 +593,7 @@ class MyGame(arcade.Window):
             return definition
         return f"{definition} || {self.recursive_definition(redirect_word, num + 1)}"
 
-    def play_word(self, play, tiles: list[Letter] | None) -> list[Letter]:
+    def play_word(self, play: Play, tiles: list[Letter] | None) -> list[Letter]:
         # TODO fix the 14 - row
         row, col             = 14 - play.pos.row, play.pos.col
         row_delta, col_delta = deltas(play.pos.dir)
@@ -814,7 +814,7 @@ class MyGame(arcade.Window):
             return word_score(self.grid, self.trie, letters, pos, True, self.temp_blank_letters | self.blank_letters)
         return Err("no letters typed")
 
-    def generate_all_plays(self, tiles) -> list[Play]:
+    def generate_all_plays(self, tiles: list[Letter]) -> list[Play]:
         plays = SolverState(self.trie, self.grid, tiles).find_all_options()
         valid_plays = []
         for pos, letters, blanks in plays:

@@ -16,7 +16,7 @@ class SolverState:
     direction: Direction | None
     plays: list[Play_MayBeRefactor]
 
-    def __init__(self, dictionary: Trie, board: Board, rack): # What is the type of rack?
+    def __init__(self, dictionary: Trie, board: Board, rack: list[Letter]):
         self.dictionary = dictionary
         self.board = board
         self.original_rack = rack.copy()
@@ -73,7 +73,7 @@ class SolverState:
             word_idx -= 1
             play_pos = self.before(play_pos)
 
-    def cross_check_for_display(self, on_rack: bool): # -> ??? Dict[CellCoord, Set[str]] ???
+    def cross_check_for_display(self, on_rack: bool) -> dict[CellCoord, set[str]]:
         self.direction = Direction.ACROSS
         a = self.cross_check()
         self.direction = Direction.DOWN
