@@ -17,14 +17,11 @@ from colorama import Fore, Style, init
 from numpy import sign
 from result import Err, Ok
 
-from board import Board, Direction, Position
-from solver import SolverState, CellCoord
+from board import Board, CellCoord, Direction, Letter, Position
+from solver import SolverState
 from trie import nwl_2020
 
-from board import Board, Direction, Position, CellCoord, Letter
-from typing import Optional, Set, List, Tuple
-
-Color = Tuple[int, int, int]
+Color = tuple[int, int, int]
 
 # Initialize colorama
 init(autoreset=True)
@@ -135,12 +132,12 @@ class Play:
     word:     str
     pos:      Position
     is_bingo: bool
-    blanks:   Set[CellCoord]
+    blanks:   set[CellCoord]
 
 class Cursor:
     x: int
     y: int
-    dir: Optional[Direction]
+    dir: Direction | None
     def __init__(self):
         self.dir = None
         self.x   = 7
@@ -152,7 +149,7 @@ class Cursor:
         else:                              self.dir = None
 
 class Player:
-    tiles:          List[Letter]
+    tiles:          list[Letter]
     score:          int
     #word_ranks:    List[???]
     last_word_score: int
@@ -186,7 +183,7 @@ def tile_color(pos: CellCoord) -> Color:
     if BOARD[row][col] == Tl.TW: return COLOR_TRIPLE_WORD
     return COLOR_NORMAL
 
-def deltas(dir) -> Tuple[int, int]:
+def deltas(dir) -> tuple[int, int]:
     row_delta = 1 if dir == Direction.DOWN else 0
     col_delta = 0 if dir == Direction.DOWN else 1
     return (row_delta, col_delta)
@@ -761,7 +758,7 @@ class MyGame(arcade.Window):
                     if self.player_words_found:
                         # TODO: is this if statement needed
                         self.player.word_ranks.append(min(self.player_words_found))
-                        print(("{:.1f}".format(sum(self.player.word_ranks) / len(self.player.word_ranks))), self.player.word_ranks)
+                        print((f"{sum(self.player.word_ranks) / len(self.player.word_ranks):.1f}"), self.player.word_ranks)
                     else:
                         breakpoint()
 
