@@ -419,8 +419,8 @@ class MyGame(arcade.Window):
         row    = 14
         diff   = self.player.score - self.computer.score
         color  = [arcade.color.HOT_PINK, arcade.color.YELLOW, arcade.color.DARK_PASTEL_GREEN][1 + sign(diff)]
-        x = (MARGIN + WIDTH)  * column + MARGIN * 2 + SCORE_BOX_WIDTH // 2
-        y = (MARGIN + HEIGHT) * row    + MARGIN + HEIGHT // 2 + BOTTOM_MARGIN
+        x = int((MARGIN + WIDTH)  * column + MARGIN * 2 + SCORE_BOX_WIDTH // 2)
+        y = int((MARGIN + HEIGHT) * row    + MARGIN + HEIGHT // 2 + BOTTOM_MARGIN)
         arcade.draw_rectangle_filled(x, y, SCORE_BOX_WIDTH, HEIGHT, color)
         score = f"{self.player.score} ({self.player.last_word_score})"
         arcade.draw_text(score, x-HORIZ_TEXT_OFFSET*4, y-VERT_TEXT_OFFSET*.75, arcade.color.BLACK, 20, bold=True, font_name=FONT)
@@ -430,8 +430,8 @@ class MyGame(arcade.Window):
         row    = 14
         diff   = self.computer.score - self.player.score
         color  = [arcade.color.HOT_PINK, arcade.color.YELLOW, arcade.color.DARK_PASTEL_GREEN][1 + sign(diff)]
-        x = (MARGIN + WIDTH)  * column + (MARGIN + SCORE_BOX_WIDTH) + MARGIN * 2 + SCORE_BOX_WIDTH // 2
-        y = (MARGIN + HEIGHT) * row    + MARGIN + HEIGHT // 2 + BOTTOM_MARGIN
+        x = int((MARGIN + WIDTH)  * column + (MARGIN + SCORE_BOX_WIDTH) + MARGIN * 2 + SCORE_BOX_WIDTH // 2)
+        y = int((MARGIN + HEIGHT) * row    + MARGIN + HEIGHT // 2 + BOTTOM_MARGIN)
         arcade.draw_rectangle_filled(x, y, SCORE_BOX_WIDTH, HEIGHT, color)
         score = f"{self.computer.score} ({self.computer.last_word_score})"
         arcade.draw_text(score, x-HORIZ_TEXT_OFFSET*4, y-VERT_TEXT_OFFSET*.75, arcade.color.BLACK, 20, bold=True, font_name=FONT)
@@ -451,8 +451,8 @@ class MyGame(arcade.Window):
                 color = arcade.color.YELLOW
             else:
                 color = arcade.color.LIGHT_GRAY
-            x = (MARGIN + WIDTH)  * column + (2 * MARGIN) + TOP_WORD_BOX_WIDTH // 2
-            y = (MARGIN + HEIGHT) * row    + MARGIN + HEIGHT // 2 + BOTTOM_MARGIN
+            x = int((MARGIN + WIDTH)  * column + (2 * MARGIN) + TOP_WORD_BOX_WIDTH // 2)
+            y = int((MARGIN + HEIGHT) * row    + MARGIN + HEIGHT // 2 + BOTTOM_MARGIN)
             arcade.draw_rectangle_filled(x, y, TOP_WORD_BOX_WIDTH, HEIGHT, color)
             if render_row in self.player_words_found or self.phase == Phase.PAUSE_FOR_ANALYSIS:
                 arcade.draw_rectangle_filled(x, y, TOP_WORD_BOX_WIDTH, HEIGHT, color)
@@ -469,8 +469,8 @@ class MyGame(arcade.Window):
             color = arcade.color.DARK_PASTEL_GREEN
             if tile in "AEIOU": color = arcade.color.HOT_PINK
             if tile == " ":     color = arcade.color.AMETHYST
-            x = (MARGIN + WIDTH)  * column + (2 * MARGIN) + TOP_WORD_BOX_WIDTH + (6 * MARGIN)
-            y = (MARGIN + HEIGHT) * row    + MARGIN + HEIGHT // 2 + BOTTOM_MARGIN
+            x = int((MARGIN + WIDTH)  * column + (2 * MARGIN) + TOP_WORD_BOX_WIDTH + (6 * MARGIN))
+            y = int((MARGIN + HEIGHT) * row    + MARGIN + HEIGHT // 2 + BOTTOM_MARGIN)
             arcade.draw_rectangle_filled(x, y, WIDTH, HEIGHT, color)
             arcade.draw_text(tile, x-HORIZ_TEXT_OFFSET+5, y-VERT_TEXT_OFFSET*.75, arcade.color.BLACK, 20, bold=True, font_name=FONT)
             column += 1
